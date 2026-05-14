@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "SearchOptions.h"
+
 
 struct ScanOptions;
 enum class MediaType {
@@ -18,6 +20,13 @@ struct MediaIndex {
     std::vector<std::string> audio;
     std::vector<std::string> video;
     std::vector<std::string> images;
+
+    void clean_index() {
+        audio.clear();
+        video.clear();
+        images.clear();
+    }
+
 };
 
 class Scanner {

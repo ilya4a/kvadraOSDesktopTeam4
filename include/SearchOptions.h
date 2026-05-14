@@ -58,9 +58,9 @@ public:
 
         Builder& remove_image_ext(std::vector<std::string> const& image_ext);
 
-        Builder& root_path(std::filesystem::path path) { root_path_ = std::move(path); return *this; }
-        Builder& follow_symlinks(bool v) { follow_symlinks_ = v; return *this; }
-        Builder& recursive(bool v) { recursive_ = v; return *this; }
+        Builder& set_root_path(std::filesystem::path path) { root_path_ = std::move(path); return *this; }
+        Builder& set_follow_symlinks(bool v) { follow_symlinks_ = v; return *this; }
+        Builder& set_recursive(bool v) { recursive_ = v; return *this; }
 
 
         ScanOptions build();
