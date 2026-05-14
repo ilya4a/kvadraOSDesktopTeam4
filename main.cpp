@@ -2,6 +2,9 @@
 
 #include "Scanner.h"
 #include "SearchOptions.h"
+#include  "json_writer.h"
+#include <nlohmann/json.hpp>
+
 int main() {
 
     ScanOptions scan_options = ScanOptions::Builder()
@@ -10,14 +13,14 @@ int main() {
     Scanner scanner(scan_options);
     try {
         MediaIndex index = scanner.scan();
-        for (auto&i: index.audio) {
-            std::cout << i << std::endl;
-        }
+        // for (auto&i: index.audio) {
+        //     std::cout << i << std::endl;
+        // }
+        write_media_index(index, "/home/ilya/.media_files");
 
-    }catch (...) {
-        std::cerr << "scanner.scan();" << std::endl;
+    }catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
     }
 
-    std::cout << "Hello, World!" << std::endl;
     return 0;
 }
