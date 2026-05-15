@@ -6,8 +6,8 @@
 #include <thread>
 
 #include <nlohmann/json.hpp>
+#include "ScanOptions.h"
 #include "Scanner.h"
-#include "SearchOptions.h"
 #include "json_writer.h"
 
 #include <unistd.h>
@@ -86,6 +86,7 @@ void run_scan(ScanOptions scan_options, std::filesystem::path out_path, std::str
 
 void signal_handler(int) {
     stop_flag.store(true);
+    close(STDIN_FILENO);
 }
 
 void console_listener() {
@@ -109,10 +110,15 @@ int run_app(int argc, char** argv) {
     CLI::App app{"Media file scanner - periodically scans a directory and creates .media_files JSON"};
 
     std::string root_path = get_home_dir().string();
+    std::string output_dir = "";
+
     std::string interval_spec = "30s";
     bool recursive = true;
     bool follow_symlinks = false;
-    std::string output_dir = "";
+
+
+    std::vector<std::string> allowed_ext;
+    std::vector<std::string> blocked_ext;
 
     app.add_option("-p,--path", root_path, "Root directory to scan")
        ->capture_default_str();
@@ -122,17 +128,31 @@ int run_app(int argc, char** argv) {
     app.add_flag("-s,--symlinks", follow_symlinks, "Follow symbolic links");
     app.add_option("-o,--output", output_dir, "Directory to save .media_files (defaults to --path)");
 
+    app.add_option("--allow-ext", allowed_ext, "Allow only these extensions (e.g. .mp3 .wav)")
+   ->expected(-1);
+
+    app.add_option("--block-ext", blocked_ext, "Exclude these extensions (e.g. .tmp .txt)")
+    ->expected(-1);
+
     CLI11_PARSE(app, argc, argv);
 
     if (output_dir.empty()) {
         output_dir = root_path;
     }
 
-    ScanOptions scan_opts = ScanOptions::Builder()
-        .set_root_path(root_path)
-        .set_follow_symlinks(follow_symlinks)
-        .set_recursive(recursive)
-        .build();
+    ScanOptions::Builder builder = ScanOptions::Builder()
+    .set_root_path(root_path)
+    .set_follow_symlinks(follow_symlinks)
+    .set_recursive(recursive);
+
+    if (!blocked_ext.empty()) {
+        builder.remove_ext(blocked_ext);
+    }
+    if (!allowed_ext.empty()) {
+        builder.select_ext(allowed_ext);
+    }
+
+    ScanOptions scan_opts = builder.build();
 
     std::cout << "Starting scan:\n"
               << "  Path: " << root_path << "\n"

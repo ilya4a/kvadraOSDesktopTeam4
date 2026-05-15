@@ -2,7 +2,7 @@
 #define KVADRAOSDESKTOPTEAM4_SCANNER_H
 
 #include "MediaIndex.h"
-#include "SearchOptions.h"
+#include "ScanOptions.h"
 
 class Scanner {
 public:

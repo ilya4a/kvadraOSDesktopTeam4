@@ -1,5 +1,5 @@
 
-#include "SearchOptions.h"
+#include "ScanOptions.h"
 
 ScanOptions::Builder::Builder(std::filesystem::path root_path, bool follow_symlinks, bool recursive)  : root_path_(std::move(root_path)),
             follow_symlinks_(follow_symlinks), recursive_(recursive){}

@@ -27,7 +27,7 @@ FetchContent_MakeAvailable(CLI11)
 add_executable(${PROJECT_NAME}
         main.cpp
         src/Scanner.cpp
-        src/SearchOptions.cpp
+        src/ScanOptions.cpp
         include/cli.h
         src/cli.cpp
 )
