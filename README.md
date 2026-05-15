@@ -1,5 +1,5 @@
 # kvadraOSDesktopTeam4
-
+Test assignment for the kvadraOS Desktop team 4.
 A Linux C++ application that periodically scans a directory for media files and produces the result either as a JSON file or via a local HTTP endpoint.
 
 ## What it does
