@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <string>
 #include <filesystem>
+#include <cctype>
 
 #include "CLI/CLI.hpp"
 
@@ -66,13 +67,25 @@ void run_scan(ScanOptions scan_options, std::filesystem::path out_path, std::str
     if (out_path.empty()) throw std::runtime_error("Output path is empty");
 
     auto next_scan = clock::now();
-    std::chrono::seconds delay = parse_interval(str_delay);
+    std::chrono::seconds delay;
+
+    try {
+        delay = parse_interval(str_delay);
+    } catch (const std::exception& e) {
+        std::cerr << "Invalid interval format: " << str_delay << std::endl;
+        return;
+    }
 
     while (!stop_flag.load()) {
         Scanner scanner(scan_options);
 
         MediaIndex index = scanner.scan();
-        write_media_index(index, out_path/".media_files");
+
+        try {
+            write_media_index(index, out_path / ".media_files");
+        } catch (const std::exception& e) {
+            std::cerr << "Error writing JSON: " << e.what() << std::endl;
+        }
 
         next_scan += delay;
 
@@ -83,10 +96,8 @@ void run_scan(ScanOptions scan_options, std::filesystem::path out_path, std::str
     }
 }
 
-
 void signal_handler(int) {
-    stop_flag.store(true);
-    close(STDIN_FILENO);
+    _exit(0);
 }
 
 void console_listener() {
@@ -109,7 +120,15 @@ int run_app(int argc, char** argv) {
 
     CLI::App app{"Media file scanner - periodically scans a directory and creates .media_files JSON"};
 
-    std::string root_path = get_home_dir().string();
+    std::string root_path;
+
+    try {
+        root_path = get_home_dir().string();
+    } catch (const std::exception& e) {
+        std::cerr << "Error getting home directory: " << e.what() << std::endl;
+        return 1;
+    }
+
     std::string output_dir = "";
 
     std::string interval_spec = "30s";
@@ -160,9 +179,13 @@ int run_app(int argc, char** argv) {
               << "  Output JSON: " << output_dir << "/.media_files\n"
               << "  Recursive: " << (recursive ? "yes" : "no") << "\n"
               << "  Symlinks: " << (follow_symlinks ? "yes" : "no") << "\n"
-              << "Press Ctrl+C to stop." << std::endl;
+              << "Press Ctrl+C or q to stop." << std::endl;
 
-    run_scan(scan_opts, std::filesystem::path(output_dir), interval_spec);
+    try {
+        run_scan(scan_opts, std::filesystem::path(output_dir), interval_spec);
+    } catch (const std::exception& e) {
+        std::cerr << "Fatal error: " << e.what() << std::endl;
+    }
 
     std::exit(0);
 }
