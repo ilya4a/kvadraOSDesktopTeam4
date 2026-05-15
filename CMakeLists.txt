@@ -32,15 +32,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(cpp_httplib)
 
 add_executable(${PROJECT_NAME}
-        main.cpp
-        src/Scanner.cpp
-        src/ScanOptions.cpp
-        include/cli.h
-        src/cli.cpp
-        src/MediaIndexStore.cpp
-        include/MediaIndexStore.h
-        include/MediaHttpServer.cpp
-        include/MediaHttpServer.h
+        src/main.cpp
+        src/scanner/Scanner.cpp
+        src/scanner/ScanOptions.cpp
+        include/app/cli.h
+        src/app/cli.cpp
+        src/storage/MediaIndexStore.cpp
+        include/storage/MediaIndexStore.h
+        src/utils/MediaHttpServer.cpp
+        include/utils/MediaHttpServer.h
+        include/app/AppConfig.h
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

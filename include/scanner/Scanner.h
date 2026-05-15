@@ -1,17 +1,16 @@
 #ifndef KVADRAOSDESKTOPTEAM4_SCANNER_H
 #define KVADRAOSDESKTOPTEAM4_SCANNER_H
 
-#include "../MediaIndex.h"
-#include "../ScanOptions.h"
+#include "ScanOptions.h"
+#include "utils/MediaIndex.h"
 
 class Scanner {
-public:
+  public:
     explicit Scanner(ScanOptions options);
     MediaIndex scan() const;
 
-private:
+  private:
     ScanOptions options_;
 };
-
 
 #endif // KVADRAOSDESKTOPTEAM4_SCANNER_H
