@@ -19,6 +19,8 @@
 #include <cctype>
 
 #include "CLI/CLI.hpp"
+#include "MediaHttpServer.h"
+#include "MediaIndexStore.h"
 
 std::atomic<bool> stop_flag{false};
 
@@ -60,11 +62,13 @@ inline std::chrono::seconds parse_interval(const std::string& input) {
 }
 
 
-void run_scan(ScanOptions scan_options, std::filesystem::path out_path, std::string str_delay) {
+void run_scan(ScanOptions scan_options, bool file_result, MediaIndexStore& store, std::filesystem::path out_path, std::string str_delay) {
 
     using clock = std::chrono::steady_clock;
 
-    if (out_path.empty()) throw std::runtime_error("Output path is empty");
+    if (file_result) {
+        if (out_path.empty()) throw std::runtime_error("Output path is empty");
+    }
 
     auto next_scan = clock::now();
     std::chrono::seconds delay;
@@ -80,11 +84,14 @@ void run_scan(ScanOptions scan_options, std::filesystem::path out_path, std::str
         Scanner scanner(scan_options);
 
         MediaIndex index = scanner.scan();
-
-        try {
-            write_media_index(index, out_path / ".media_files");
-        } catch (const std::exception& e) {
-            std::cerr << "Error writing JSON: " << e.what() << std::endl;
+        if (file_result) {
+            try {
+                write_media_index(index, out_path / ".media_files", file_result);
+            } catch (const std::exception& e) {
+                std::cerr << "Error writing JSON: " << e.what() << std::endl;
+            }
+        }else {
+            store.update(index);
         }
 
         next_scan += delay;
@@ -94,6 +101,16 @@ void run_scan(ScanOptions scan_options, std::filesystem::path out_path, std::str
         }
 
     }
+}
+
+void run_scan_server_result(ScanOptions scan_options, MediaIndexStore& store, std::string str_delay) {
+    run_scan(scan_options, false, store, "",  str_delay);
+}
+
+
+void run_scan_file_result(ScanOptions scan_options, std::filesystem::path out_path, std::string str_delay) {
+    MediaIndexStore temp_store;
+    run_scan(scan_options, true, temp_store, out_path, str_delay);
 }
 
 void signal_handler(int) {
@@ -135,6 +152,8 @@ int run_app(int argc, char** argv) {
     bool recursive = true;
     bool follow_symlinks = false;
 
+    bool run_with_file_result = false;
+
 
     std::vector<std::string> allowed_ext;
     std::vector<std::string> blocked_ext;
@@ -145,6 +164,9 @@ int run_app(int argc, char** argv) {
        ->capture_default_str();
     app.add_flag("-r,--recursive", recursive, "Recursive scan (default true)");
     app.add_flag("-s,--symlinks", follow_symlinks, "Follow symbolic links");
+
+    app.add_flag("-f,--file", run_with_file_result, "Get result as file");
+
     app.add_option("-o,--output", output_dir, "Directory to save .media_files (defaults to --path)");
 
     app.add_option("--allow-ext", allowed_ext, "Allow only these extensions (e.g. .mp3 .wav)")
@@ -182,7 +204,25 @@ int run_app(int argc, char** argv) {
               << "Press Ctrl+C or q to stop." << std::endl;
 
     try {
-        run_scan(scan_opts, std::filesystem::path(output_dir), interval_spec);
+
+        if (run_with_file_result) {
+            run_scan_file_result(scan_opts, output_dir, interval_spec);
+        }else {
+            MediaIndexStore store;
+            MediaHttpServer http_server(store);
+
+            std::thread http_thread([&]() {
+                http_server.run();
+            });
+
+            run_scan_server_result(scan_opts, store, interval_spec);
+
+            http_server.stop();
+            if (http_thread.joinable()) {
+                http_thread.join();
+            }
+        }
+
     } catch (const std::exception& e) {
         std::cerr << "Fatal error: " << e.what() << std::endl;
     }

@@ -24,16 +24,28 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(CLI11)
 
+FetchContent_Declare(
+        cpp_httplib
+        URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_MakeAvailable(cpp_httplib)
+
 add_executable(${PROJECT_NAME}
         main.cpp
         src/Scanner.cpp
         src/ScanOptions.cpp
         include/cli.h
         src/cli.cpp
+        src/MediaIndexStore.cpp
+        include/MediaIndexStore.h
+        include/MediaHttpServer.cpp
+        include/MediaHttpServer.h
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${cpp_httplib_SOURCE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
