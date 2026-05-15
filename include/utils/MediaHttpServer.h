@@ -4,7 +4,7 @@
 
 #include <httplib.h>
 
-#include "MediaIndexStore.h"
+#include "../storage/MediaIndexStore.h"
 
 class MediaHttpServer {
 public:

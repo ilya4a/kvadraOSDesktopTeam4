@@ -5,7 +5,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "MediaIndex.h"
+#include "../MediaIndex.h"
 
 inline std::string write_media_index(const MediaIndex& index, const std::filesystem::path& output_path = "", bool file_result = false) {
     using json = nlohmann::json;

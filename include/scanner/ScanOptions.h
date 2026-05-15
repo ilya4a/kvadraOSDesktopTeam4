@@ -7,7 +7,7 @@
 
 struct ScanOptions {
 private:
-    std::filesystem::path root_path_;
+    std::filesystem::path scan_path_;
     bool follow_symlinks_ = false;
     bool recursive_ = true;
 
@@ -17,7 +17,7 @@ private:
 
 public:
 
-    const std::filesystem::path& root_path() const { return root_path_; }
+    const std::filesystem::path& root_path() const { return scan_path_; }
     bool follow_symlinks() const { return follow_symlinks_; }
     bool recursive() const { return recursive_;}
 

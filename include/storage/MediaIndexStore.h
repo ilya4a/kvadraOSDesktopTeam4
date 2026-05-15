@@ -5,7 +5,7 @@
 #include <mutex>
 #include <string>
 
-#include "MediaIndex.h"
+#include "../MediaIndex.h"
 #include "json_writer.h"
 
 class MediaIndexStore {

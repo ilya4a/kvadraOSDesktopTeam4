@@ -1,6 +1,6 @@
 #include <iostream>
-#include "json_writer.h"
-#include  "cli.h"
+#include "../include/app/cli.h"
+#include "../include/storage/json_writer.h"
 
 int main(int argc, char** argv) {
 

@@ -1,5 +1,5 @@
 
-#include "Scanner.h"
+#include "../../include/scanner/Scanner.h"
 #include <algorithm>
 #include <cctype>
 #include <filesystem>

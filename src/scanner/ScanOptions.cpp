@@ -1,5 +1,5 @@
 
-#include "ScanOptions.h"
+#include "../../include/scanner/ScanOptions.h"
 
 ScanOptions::Builder::Builder(std::filesystem::path root_path, bool follow_symlinks, bool recursive)  : root_path_(std::move(root_path)),
             follow_symlinks_(follow_symlinks), recursive_(recursive){}
@@ -40,7 +40,7 @@ ScanOptions ScanOptions::Builder::build()  {
 ScanOptions::ScanOptions(std::filesystem::path &&root_path, bool follow_symlinks, bool recursive,
                          std::unordered_set<std::string> &&audio_ext, std::unordered_set<std::string> &&video_ext,
                          std::unordered_set<std::string> &&image_ext)  :
-    root_path_(std::move(root_path)),
+    scan_path_(std::move(root_path)),
     follow_symlinks_(follow_symlinks),
     recursive_(recursive),
     audio_ext_(std::move(audio_ext)),
