@@ -46,17 +46,9 @@ public:
         Builder(std::filesystem::path root_path = "./", bool follow_symlinks = false,
         bool recursive = true);
 
-        Builder& set_audio_ext(const std::vector<std::string> & audio_ext);
+        Builder& select_ext(const std::vector<std::string> & audio_ext);
+        Builder& remove_ext(std::vector<std::string> const& audio_ext);
 
-        Builder& remove_audio_ext(std::vector<std::string> const& audio_ext);
-
-        Builder& set_video_ext(std::vector<std::string> const& video_ext);
-
-        Builder& remove_video_ext(std::vector<std::string> const& video_ext);
-
-        Builder& set_image_ext(std::vector<std::string> const& image_ext);
-
-        Builder& remove_image_ext(std::vector<std::string> const& image_ext);
 
         Builder& set_root_path(std::filesystem::path path) { root_path_ = std::move(path); return *this; }
         Builder& set_follow_symlinks(bool v) { follow_symlinks_ = v; return *this; }
